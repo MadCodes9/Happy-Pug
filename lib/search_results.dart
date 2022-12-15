@@ -1641,7 +1641,7 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                                                       minFontSize: 12,
                                                       presetFontSizes: [15, 14, 12],
                                                       overflow: TextOverflow.ellipsis,
-                                                      style: TextStyle(color: Colors.blueGrey, fontSize: 15, fontWeight: FontWeight.bold)
+                                                      style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)
                                                   )
                                               ),
 
@@ -1667,25 +1667,6 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                             )
                           ],
                         ),
-
-                        //FOR FUTURE USE
-                        // ElevatedButton(
-                        //     onPressed: (){  //load data from fire store database
-                        //       FirebaseFirestore.instance.collection("ingredients").get()
-                        //           .then((querySnapshot) {
-                        //         print("Successfully load all ingredients");
-                        //         //print querySnapshot
-                        //         querySnapshot.docs.forEach((element) {
-                        //           //print(element.data());
-                        //           print(element.data()['name']);
-                        //         });
-                        //       }).catchError((error){
-                        //         print("Fail to load all ingredients");
-                        //         print(error);
-                        //       });
-                        //     },
-                        //     child: Text("List all ingredients")
-                        // )
                       ]
                   ),
                 ),
@@ -1923,7 +1904,7 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
             else{
               selectedIngredientList.add(selectedIngredient![i].name!);
             }
-            print("SELECTED " + selectedIngredient![i].name!);
+            print("Selected Ingredients: " + selectedIngredient![i].name!);
           }
         });
         Navigator.pop(context);
