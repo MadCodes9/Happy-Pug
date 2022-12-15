@@ -51,6 +51,7 @@ dependencies:
   emojis: ^0.9.9
   auto_size_text: ^3.0.0
   font_awesome_flutter: ^10.1.0
+  filter_list: ^1.0.2
 
 
 dev_dependencies:
