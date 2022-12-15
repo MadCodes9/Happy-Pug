@@ -176,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         appBar: AppBar(
           title: AutoSizeText(
-            "Happy Pug!",
+            "Happy Pug",
             textAlign: TextAlign.left,
             style: GoogleFonts.pacifico(fontSize: 20, fontWeight: FontWeight.w500),
             maxLines: 1,

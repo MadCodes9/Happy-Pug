@@ -1,4 +1,7 @@
+import 'dart:ffi';
+
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -28,14 +31,24 @@ class MySearchResultsPage extends StatefulWidget {
 class _MySearchResultsState extends State<MySearchResultsPage> {
   Map<String, List<String>> results = {};
   List<String> keys = [];
+
+  Map<String, dynamic> databaseDescription = {};
+  Map<String, dynamic> databaseRating = {};
+  Map<String, dynamic> databaseLabel = {};
+  Map<String,Color> databaseColor = {};
+  List<String> databaseKeys = [];
+
   bool _isVisible = true;
   bool _isVisible2 = false;
+  bool _isVisible3 = true;
   bool pressed1 = true;
   bool pressed2 = false;
+  bool pressed3 = true;
   Text rating = Text("");
   Map<String,Color> btnColor = {};
   var myGroup1 = AutoSizeGroup(); //synchronize font sizes
   var myGroup2 = AutoSizeGroup();
+  var myGroup3 = AutoSizeGroup();
   var isPortrait;
   final ScrollController _scrollController = ScrollController();
 
@@ -44,6 +57,8 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
     super.initState();
     setAttributes(); //Access widget attributes
     setButtonColor(); //dynamically set background color
+
+    getDatabase(); //set database variables at the start
   }
 
   @override
@@ -685,7 +700,6 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                                                                 child: InkWell(
                                                                   child:Container(
                                                                     alignment: Alignment.bottomCenter,
-                                                                    //constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.1, maxWidth: MediaQuery.of(context).size.width /2.6 ),
                                                                     constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5, maxWidth: MediaQuery.of(context).size.width/2.5),
                                                                     width: MediaQuery.of(context).size.width,
                                                                     height: MediaQuery.of(context).size.height * 0.15,
@@ -828,8 +842,11 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                                     setState((){
                                       pressed1 = !pressed1;
                                       _isVisible = false;
+                                      _isVisible3 = false;
                                     });
+                                    //Analysis btn is pressed so un-press Ingredient btn and search btn
                                     pressed2 = true;
+                                    pressed3 = true;
                                     showPieChart();
                                   },
                                   style: pressed1 //Analysis btn decoration on press
@@ -866,9 +883,11 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                                     setState((){
                                       pressed2 = !pressed2;
                                       _isVisible2 = false;
+                                      _isVisible3 = false;
                                     });
-                                    //Ingredient btn is pressed so un-press Analysis btn
+                                    //Ingredient btn is pressed so un-press Analysis btn and search btn
                                     pressed1 = true;
+                                    pressed3 = true;
                                     showIngredients(); //Controls visibility
                                   },
                                   style: pressed2 //Ingredients btn decoration on press
@@ -887,6 +906,51 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                                 ),
                               ),
                             ),
+
+                            Padding(
+                              padding:  EdgeInsets.only(top: 10),
+                              child: ButtonTheme(
+                                child: TextButton.icon(
+                                  label: AutoSizeText(
+                                      "Search",
+                                      maxLines: 1,
+                                      minFontSize: 12,
+                                      presetFontSizes: [15, 14, 12],
+                                      overflow: TextOverflow.ellipsis,
+                                      group: myGroup3,
+                                      style: TextStyle(color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900], fontSize: 15, fontWeight: FontWeight.bold)),
+                                  onPressed: (){
+                                    setState((){
+                                      pressed3 = !pressed3;
+                                      _isVisible3 = false;
+                                      _isVisible = false;
+                                      _isVisible2 = false;
+                                    });
+                                    //Search btn is pressed so un-press Ingredient btn and Analysis btn
+                                    pressed1 = true;
+                                    pressed2 = true;
+                                    showDatabase();
+
+
+                                  },
+                                  style: pressed3 //Search btn decoration on press
+                                      ?TextButton.styleFrom(
+                                    shape: BeveledRectangleBorder(),
+
+                                  ): TextButton.styleFrom(
+                                    shape: BeveledRectangleBorder(),
+                                    backgroundColor: widget.isDarkModeEnabled ?Colors.grey[800]: Colors.deepPurple[100],
+                                  ),
+
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: pressed3 ?Colors.grey: Color(0xFF212121),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+
                           ],
                         ),
 
@@ -1424,8 +1488,161 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                                   )
                               ),
                             ),
+
+                            //FOR SEARCHHHH
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child:  Visibility(
+                                  visible: _isVisible3,
+                                  child: SingleChildScrollView(
+                                    padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 3, bottom: 3),
+                                    scrollDirection: Axis.vertical,
+                                    child: Column(
+                                        children: databaseKeys.map((String ingredient) => TextButton.icon(
+                                          onPressed: (){  //popup show description, rating when ingredient is pressed
+                                            showDialog(
+                                                context: context,
+                                                builder: (context){
+                                                  return Dialog(
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                                    elevation: 16,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(  //decorate popup
+                                                          color: widget.isDarkModeEnabled ?Colors.grey[800]: Colors.white,
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors.grey.withOpacity(0.5),
+                                                              spreadRadius: 2,
+                                                              blurRadius: 7,
+                                                              offset: Offset(2,3),
+                                                            ),
+                                                          ]
+                                                      ),
+                                                      child: GlowingOverscrollIndicator(
+                                                        axisDirection: AxisDirection.down,
+                                                        color:  Colors.deepPurple,
+                                                        child: ListView(
+                                                          padding: EdgeInsets.all(10),
+                                                          shrinkWrap: true,
+                                                          children: [
+                                                            SizedBox(height: 20),
+                                                            Center( //display ingredient name
+                                                                child: AutoSizeText(
+                                                                    ingredient,
+                                                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900]))
+                                                            ),
+                                                            Column( //display ingredient description
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                SizedBox(height: 12),
+                                                                Container(height: 2),
+                                                                Row(
+                                                                  children: [
+                                                                    Padding(
+                                                                      padding: EdgeInsets.only(left: 4.0),
+                                                                      child:  Icon(
+                                                                        Icons.lightbulb,
+                                                                        color: Colors.amber,
+                                                                      ),
+                                                                    ),
+                                                                    AutoSizeText(
+                                                                        "Description",
+                                                                        maxLines: 1,
+                                                                        minFontSize: 12,
+                                                                        presetFontSizes: [15, 14, 12],
+                                                                        overflow: TextOverflow.ellipsis,
+                                                                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900]),
+                                                                        textAlign: TextAlign.left
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                Padding(
+                                                                    padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 4.0),
+                                                                    child: AutoSizeText(
+                                                                      "${databaseDescription[ingredient]}",
+                                                                      style: TextStyle(height: 1.5, fontSize: 15, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900]),
+
+                                                                    )
+                                                                ),
+                                                                Row(  //display ingredient rating
+                                                                  children: [
+                                                                    Padding(
+                                                                      padding: EdgeInsets.only(left: 4.0),
+                                                                      child: Icon(
+                                                                        Icons.health_and_safety_rounded,
+                                                                        color: databaseColor[ingredient],
+                                                                      ),
+                                                                    ),
+                                                                    displayDatabaseRating(ingredient),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            Padding(
+                                                              padding: EdgeInsets.only(right: 10.0, bottom: 4.0),
+                                                              child: Row( //display ingredient label
+                                                                children: [
+                                                                  Padding(
+                                                                    padding: EdgeInsets.only(left: 4.0),
+                                                                    child:  Icon(
+                                                                      Icons.label,
+                                                                      color: Colors.purple[400],
+                                                                    ),
+                                                                  ),
+                                                                  AutoSizeText(
+                                                                    "${databaseLabel[ingredient]}",
+                                                                    maxLines: 1,
+                                                                    minFontSize: 12,
+                                                                    presetFontSizes: [15, 14, 12],
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    style: TextStyle(height: 1.5, fontSize: 15, fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900]),
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                            );
+                                          },
+                                          label: Align( //display ingredient name button
+                                              alignment: Alignment.topLeft,
+                                              child: AutoSizeText(
+                                                  ingredient,
+                                                  maxLines: 1,
+                                                  minFontSize: 12,
+                                                  presetFontSizes: [15, 14, 12],
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(color: Colors.blueGrey, fontSize: 15, fontWeight: FontWeight.bold)
+                                              )
+                                          ),
+
+                                          style: ButtonStyle( //display ingredient btn color
+                                            backgroundColor: MaterialStateProperty.all(databaseColor[ingredient]),
+                                            alignment: Alignment.center,
+                                            elevation: MaterialStateProperty.all(3),
+                                            shadowColor:MaterialStateProperty.all(Colors.grey), //Defines shadowColor
+                                          ),
+
+                                          icon: Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Colors.black54
+                                          ),
+
+                                          )).toList()
+                                    ),
+                                ),
+                              ),
+                            ),
+
                           ],
                         ),
+
+
 
                         //FOR FUTURE USE
                         // ElevatedButton(
@@ -1478,6 +1695,60 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
     }
   }
 
+  AutoSizeText displayDatabaseRating(ingredient){
+    if(databaseRating[ingredient] == "green"){
+      return AutoSizeText(
+          "Recommended",
+          maxLines: 1,
+          minFontSize: 12,
+          presetFontSizes: [15, 14, 12],
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 15 , fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900])
+      );
+    }
+    else if(databaseRating[ingredient] == "yellow"){
+      return AutoSizeText(
+          "Not Recommended",
+          maxLines: 1,
+          minFontSize: 12,
+          presetFontSizes: [15, 14, 12],
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900])
+      );
+
+    }
+    else if(databaseRating[ingredient] == "red"){
+      return AutoSizeText(
+          "Avoid",
+          maxLines: 1,
+          minFontSize: 12,
+          presetFontSizes: [15, 14, 12],
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900])
+      );
+
+    }
+    else if(databaseRating[ingredient] == "neutral"){
+      return AutoSizeText(
+          "General ingredient definition",
+          maxLines: 1,
+          minFontSize: 12,
+          presetFontSizes: [15, 14, 12],
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900])
+      );
+    }
+    else{
+      return AutoSizeText(
+          "Not Found",
+          maxLines: 1,
+          minFontSize: 12,
+          presetFontSizes: [15, 14, 12],
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900])
+      );
+    }
+  }
   AutoSizeText displayRating(ingredient){
     if(results[ingredient]?.elementAt(1) == "green"){
       return AutoSizeText(
@@ -1594,6 +1865,48 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
   void showPieChart(){
     setState((){
       _isVisible2 = !_isVisible2;
+    });
+  }
+
+  void showDatabase(){
+    setState((){
+      _isVisible3 = !_isVisible3;
+    });
+  }
+
+  getDatabase() async {
+    dynamic data = await FirebaseFirestore.instance.collection("ingredients").get()
+        .then((querySnapshot) {
+      print("Successfully load all ingredients");
+      //print querySnapshot
+      querySnapshot.docs.forEach((element) {
+        //print(element.data());
+        // print(element.data()['name']);
+
+        //Add database results to be displayed
+        databaseDescription[element.data()['name']] = element.data()["description"];
+        databaseRating[element.data()['name']] =  element.data()["color"];
+        databaseLabel[element.data()['name']] = element.data()["label"];
+        databaseKeys.add(element.data()['name']);
+
+        if(databaseRating[element.data()['name']] == "green"){
+          databaseColor[element.data()['name']] = Colors.green;
+        }
+        else if (databaseRating[element.data()['name']] == "yellow"){
+          databaseColor[element.data()['name']] = Colors.amber;
+        }
+        else if (databaseRating[element.data()['name']]  == "red"){
+          databaseColor[element.data()['name']] = Colors.red;
+        }
+        else{
+          databaseColor[element.data()['name']] = Colors.lightBlueAccent;
+        }
+
+
+      });
+    }).catchError((error){
+      print("Fail to load all ingredients");
+      print(error);
     });
   }
 
