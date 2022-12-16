@@ -69,8 +69,53 @@ This project utilizes the firestore database to store each ingredient descriptio
     setPieChartData();  //filter ingredients by label
   }
 ```
-## Results Page
+## Results Screen
 The overall rating is calculated out of one hundred. When the ingredient list is filtered through the algorithm, it reads the rating of each ingredient and either subtracts or adds points. If a ingredient has a green or blue rating then the algorithm adds points, if a ingredient has a yellow rating then the algorithm add half-points and if the ingredients has a red rating then no points are added. Additional points are either added or subtracted depending in the first five ingredients. If the first five ingredients are all green/blue than a +5 bonus point is added, if there contains a yellow than a -3 bonus point is added and if there contains a red than a -5 bonus point is added. Finally, the overall ingredient rating is compared to a grading scale, which determines the grade. Each individual ingredient rating is calculated with consideration to the AAFCO and AllAboutDogFood.co.uk.
+
+The results are display in a list tile format and can be viewed in a pie chart format as well. The pie chart format displays segments that each represents a percentage of ingredients found in a given category. Each segment represents a particular category.
+
+The search tab can be used when a specific ingredient isn't displayed or when the user is curious about a specific ingredient. The search tab allows the user to view the database and provides search filters to easily find ingredients. When the user hits 'apply' the data is displayed on the screen in a list tile format.  
+
+## Dry Matter Basis Calculator Screen
+Another tool provided is the Dry Matter Basis Calculator, which can provide the true percentage of protien, fat and fiber from the Guranteed Analysis. This is useful because moisture in the Guranteed Analysis offsets the real values of protien, fat and fiber and since moisture isn't alwasy neccesary to a animal's nutritional requirement, than it can be ignored. The Dry Matter Basis Calculator does this by excluding the offset of moisture and provides the results to the user. 
+
+**Dry Matter Basis Calculation**
+```Dart
+ void calculateDryMatterBasis(){
+    //Prompt pop-up to display to user that input is invalid
+    if(proteinController.text.isEmpty || fatController.text.isEmpty || fiberController.text.isEmpty || moistureController.text.isEmpty ){
+      setInvalid();
+      return;
+    }
+    else{
+      _isInvalid = false;
+    }
+
+    double guaranteed_crude_protein = double.parse(proteinController.text);
+    double guaranteed_crude_fat = double.parse(fatController.text);
+    double guaranteed_crude_fiber = double.parse(fiberController.text);
+    double moisture = double.parse(moistureController.text);
+
+    // print(moistureController.text);
+    double dry_matter = 100 - moisture;
+
+    //Calculations
+    double true_protein = (guaranteed_crude_protein / dry_matter) * 100;
+    double true_fat = (guaranteed_crude_fat / dry_matter) * 100;
+    double true_fiber = (guaranteed_crude_fiber / dry_matter) * 100;
+
+    //Map of results
+    dry_matter_basis = {
+      //round to first decimal place
+      "True Protein" : true_protein.toStringAsFixed(1),
+      "True Fat" : true_fat.toStringAsFixed(1),
+      "True Fiber" : true_fiber.toStringAsFixed(1),
+    };
+
+    print("Results: " + dry_matter_basis.toString());
+    displayResults();
+  }
+```
 
 ## Technologies
 Project is created with 
