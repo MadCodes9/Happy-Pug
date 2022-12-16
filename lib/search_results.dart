@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'dry _matter_basis.dart';
 import 'main.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:filter_list/filter_list.dart';
@@ -1334,7 +1335,43 @@ class _MySearchResultsState extends State<MySearchResultsPage> {
                                             ),
                                             dataMap: widget.pieChartData,
                                           )
-                                        )
+                                        ),
+
+                                        //Allow user calculate the true national value on other screen
+                                        Padding(padding: EdgeInsets.only(top: 10),
+                                            child: AutoSizeText(
+                                                "Calculating The True Nutritional Value",
+                                                maxLines: 1,
+                                                minFontSize: 12,
+                                                presetFontSizes: [18, 15, 14],
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900], fontSize: 18)
+                                            ),
+                                        ),
+
+                                        Padding(
+                                            padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 4.0, top: 10.0),
+                                            child:
+                                            Container(
+                                              child: AutoSizeText(
+                                                  "Remove moisture component form the Guarantee Analysis to view the true nutrients in your dog's food.",
+                                                  style: TextStyle(fontSize: 15, color: widget.isDarkModeEnabled ?Colors.white: Colors.blueGrey[900]),
+                                                  textAlign: TextAlign.center
+                                              ),
+                                              color: widget.isDarkModeEnabled ?Colors.grey[600]: Colors.grey[100],
+                                              padding: EdgeInsets.all(8),
+                                            )
+                                        ),
+
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => MyDryMatterBasisPage(title: "Dry Matter Basis Calculator", isDarkModeEnabled: widget.isDarkModeEnabled)),
+                                            );
+                                          },
+                                          child: Text('Press to Calculate'),
+                                        ),
                                       ],
                                     )
                                 ),
