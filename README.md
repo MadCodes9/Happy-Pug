@@ -1,16 +1,7 @@
 # happy_pug
 
-A new Flutter project.
+A project created to give pet owners transparency in their animal products 
 
-## Getting Started
+## Overview
+Happy Pug is aimed to give transparency in dog food products. Simply take a picture of the ingredient list of your favorite dog food product and within a short interval view a detailed description, analysis, and rating of the ingredients found. Happy Pug is for people who love their dogs or for people who are simply curious of the unfamiliar ingredients in their dog's food. The rating of each ingredient is created with an unique algorithm and takes into consideration of the standards provided by the AAFCO and Tail Blazers.com. Happy Pug has a database with hundreds of ingredient names, descriptions, ratings, and labels to give accurate results as possible. Download Happy Pug on the Google Play Store to start using today!
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
