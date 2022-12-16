@@ -1,4 +1,4 @@
-# happy_pug
+# Happy Pug
 
 A project created to give pet owners transparency in their animal products 
 
