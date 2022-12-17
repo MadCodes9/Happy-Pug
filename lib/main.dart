@@ -18,6 +18,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:emojis/emojis.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'dart:math' as Math;
 
 void main() async {
   DecorationImage(
@@ -93,7 +94,7 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   bool textScanning = false;
   bool filteringResults = false;
   bool onClickResults = false;
@@ -120,6 +121,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final mb = 0.0;
   final ScrollController _scrollController = ScrollController();
   int _currentIndex = 0;
+
+  bool showFront = true;
 
   @override
   void initState() {
@@ -565,9 +568,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void getImage(ImageSource source) async {
     try {
       final pickedImage = await ImagePicker().pickImage(source: source);
+
       if (pickedImage != null) {
         textScanning = true;
         imageFile = pickedImage;
+
         setState(() {});
         getRecognisedText(pickedImage);
       }
@@ -585,11 +590,13 @@ class _MyHomePageState extends State<MyHomePage> {
     RecognisedText recognisedText = await textDetector.processImage(inputImage);
     await textDetector.close();
     scannedText = "";
+
     for (TextBlock block in recognisedText.blocks) {
       for (TextLine line in block.lines) {
         scannedText = scannedText + line.text + "\n";
       }
     }
+
     textScanning = false;
     setState(() {});
   }
